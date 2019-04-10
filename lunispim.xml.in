@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- filename: unispim.xml -->
+<component>
+	<name>im.lunispim.Lunispim</name>
+	<description>Lunispim Component</description>
+	<exec>@BIN_INSTALL_DIR@/ibus-engine-lunispim</exec>
+	<version>@IBUS_LUNISPIM_VERSION@</version>
+	<author>linhumans &lt;linxe123@126.com&gt;</author>
+	<license>GPL</license>
+	<homepage></homepage>
+	<textdomain>ibus-lunispim</textdomain>
+	<engines>
+		<engine>
+			<name>lunispim</name>
+			<language>zh</language>
+			<license>GPL</license>
+			<author>linhuman &lt;linxe123@126.com&gt;</author>
+			<icon>@SHARE_DIR@/lunispim/icons/logo.png</icon>
+			<layout>default</layout>
+			<longname>Lunispim</longname>
+			<description>Lunispim Input Method Engine</description>
+			<rank>0</rank>
+			<symbol>&#x37A2;</symbol>
+		</engine>
+	</engines>
+</component>
