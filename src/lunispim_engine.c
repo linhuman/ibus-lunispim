@@ -123,8 +123,8 @@ ibus_unispim_engine_init (IBusUnispimEngine *unispim_engine)
     ibus_prop_list_append(unispim_engine->props, prop);
 
     label = ibus_text_new_from_static_string("中文全拼"TICK);
-    tips = ibus_text_new_from_static_string(_("cn"));
-    prop = ibus_property_new("chinese",
+    tips = ibus_text_new_from_static_string(_("cn_qp"));
+    prop = ibus_property_new("cn_qp",
                              PROP_TYPE_NORMAL,
                              label,
                              "",
@@ -134,6 +134,33 @@ ibus_unispim_engine_init (IBusUnispimEngine *unispim_engine)
                              PROP_STATE_UNCHECKED,
                              NULL);
     ibus_prop_list_append(unispim_engine->props, prop);
+
+    label = ibus_text_new_from_static_string("中文双拼");
+    tips = ibus_text_new_from_static_string(_("cn_sp"));
+    prop = ibus_property_new("cn_sp",
+                             PROP_TYPE_NORMAL,
+                             label,
+                             "",
+                             tips,
+                             TRUE,
+                             TRUE,
+                             PROP_STATE_UNCHECKED,
+                             NULL);
+    ibus_prop_list_append(unispim_engine->props, prop);
+
+    label = ibus_text_new_from_static_string("英文输入");
+    tips = ibus_text_new_from_static_string(_("en"));
+    prop = ibus_property_new("en",
+                             PROP_TYPE_NORMAL,
+                             label,
+                             "",
+                             tips,
+                             TRUE,
+                             TRUE,
+                             PROP_STATE_UNCHECKED,
+                             NULL);
+    ibus_prop_list_append(unispim_engine->props, prop);
+
     label = ibus_text_new_from_static_string("英文单词");
     tips = ibus_text_new_from_static_string(_("en_candidate"));
     prop = ibus_property_new("en_candidate",
@@ -400,15 +427,13 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
             (modifiers & IBUS_RELEASE_MASK) &&
             (modifiers &IBUS_SHIFT_MASK)){
         if(!shift_mask_key){    //上次没有按下shift修饰键，执行英文输入切换
-            if(config.english_state){
-                config.english_state = ENGLISH_STATE_NONE;
-                unispim_api->update_config(&config);
+            if(context.english_state == ENGLISH_STATE_INPUT){
+                unispim_api->switch_chiness_input();
                 ibus_unispim_update_input_mode(unispim_engine);
                 ibus_unispim_engine_update(unispim_engine);
                 return True;
             }else{
-                config.english_state = ENGLISH_STATE_INPUT;
-                unispim_api->update_config(&config);
+                unispim_api->switch_english_input();
                 ibus_unispim_update_input_mode(unispim_engine);
                 ibus_unispim_engine_update(unispim_engine);
                 return False;
@@ -424,7 +449,7 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
     if(context.state == STATE_IINPUT){
         if((keyval >= IBUS_KEY_0 &&
             keyval <= IBUS_KEY_9 &&
-            !config.english_state) ||
+            !context.english_state) ||
                 strchr("./", keyval)){
             unispim_api->search((TCHAR)keyval);
             ibus_unispim_engine_update(unispim_engine);
@@ -437,7 +462,7 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
             (keyval >= IBUS_KEY_A && keyval <= IBUS_KEY_Z) ||
             (keyval >= IBUS_KEY_a && keyval <= IBUS_KEY_z) ||
             strchr(symbols, keyval)) &&
-                !config.english_state
+                !context.english_state
                 ){
             unispim_api->search((TCHAR)keyval);
             ibus_unispim_engine_update(unispim_engine);
@@ -445,7 +470,7 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
         }
     }
     //回车
-    if(keyval == IBUS_KEY_Return && context.input_length && !config.english_state){
+    if(keyval == IBUS_KEY_Return && context.input_length && !context.english_state){
         if(context.input_length){
             char return_text[MAX_INPUT_LENGTH + 0x10];
             unispim_api->get_return_string(return_text, MAX_INPUT_LENGTH + 0x10);
@@ -464,7 +489,7 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
     //空格按下
     if(keyval == IBUS_KEY_space &&
             context.input_length &&
-            config.english_state != ENGLISH_STATE_INPUT &&
+            context.english_state != ENGLISH_STATE_INPUT &&
             context.state != STATE_VINPUT
             ){
         if(context.compose_length && !context.candidate_count){
@@ -489,7 +514,7 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
     //数字键选择候选，i状态字母选择候选
     if(((keyval >= IBUS_KEY_1 && keyval <= IBUS_KEY_9) ||
         (keyval >= IBUS_KEY_a && keyval <= IBUS_KEY_h && context.state == STATE_IINPUT)) &&
-            config.english_state != ENGLISH_STATE_INPUT &&
+            context.english_state != ENGLISH_STATE_INPUT &&
             context.compose_length){
         guint index = 0;
         if(context.state == STATE_IINPUT){
@@ -511,28 +536,28 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
         }
     }
     if(keyval == IBUS_KEY_BackSpace && context.compose_length &&
-            config.english_state != ENGLISH_STATE_INPUT){
+            context.english_state != ENGLISH_STATE_INPUT){
         unispim_api->backspace();
         ibus_unispim_engine_update(unispim_engine);
         return True;
 
     }
-    if(keyval == IBUS_KEY_Down && context.compose_length && config.english_state != ENGLISH_STATE_INPUT){
+    if(keyval == IBUS_KEY_Down && context.compose_length && context.english_state != ENGLISH_STATE_INPUT){
         unispim_api->next_candidate_item();
         ibus_unispim_engine_update(unispim_engine);
         return True;
     }
-    if(keyval == IBUS_KEY_Up && context.compose_length && config.english_state != ENGLISH_STATE_INPUT){
+    if(keyval == IBUS_KEY_Up && context.compose_length && context.english_state != ENGLISH_STATE_INPUT){
         unispim_api->prev_candidate_item();
         ibus_unispim_engine_update(unispim_engine);
         return True;
     }
-    if(keyval == IBUS_KEY_Left && context.compose_length && config.english_state != ENGLISH_STATE_INPUT){
+    if(keyval == IBUS_KEY_Left && context.compose_length && context.english_state != ENGLISH_STATE_INPUT){
         unispim_api->move_cursor_left();
         ibus_unispim_engine_update(unispim_engine);
         return True;
     }
-    if(keyval == IBUS_KEY_Right && context.compose_length && config.english_state != ENGLISH_STATE_INPUT){
+    if(keyval == IBUS_KEY_Right && context.compose_length && context.english_state != ENGLISH_STATE_INPUT){
         unispim_api->move_cursor_right();
         ibus_unispim_engine_update(unispim_engine);
         return True;
@@ -540,8 +565,9 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
     //拼音输入
     if(((keyval >= IBUS_KEY_a && keyval <= IBUS_KEY_z) ||
         (keyval >= IBUS_KEY_A && keyval <= IBUS_KEY_Z) ||
+        (config.pinyin_mode == PINYIN_SHUANGPIN && keyval == IBUS_KEY_semicolon) ||
         keyval == IBUS_KEY_apostrophe) &&
-            config.english_state != ENGLISH_STATE_INPUT &&
+            context.english_state != ENGLISH_STATE_INPUT &&
             (context.state == STATE_EDIT || context.state == STATE_BINPUT)
             ){
         unispim_api->search((TCHAR)keyval);
@@ -550,15 +576,17 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
     }
     //逗号切换英文候选
     if(keyval == IBUS_KEY_comma){
-        if(config.english_state == ENGLISH_STATE_NONE &&
+        if(context.english_state == ENGLISH_STATE_NONE &&
                 context.input_length >= 3
                 ){
-            unispim_api->toggle_english_candidate();
+            unispim_api->toggle_english_candidate(&config);
+            unispim_api->update_config(&config);
             ibus_unispim_update_input_mode(unispim_engine);
             ibus_unispim_engine_update(unispim_engine);
             return True;
-        }else if(config.english_state == ENGLISH_STATE_CAND){
-            unispim_api->toggle_english_candidate();
+        }else if(context.english_state == ENGLISH_STATE_CAND){
+            unispim_api->toggle_english_candidate(&config);
+            unispim_api->update_config(&config);
             ibus_unispim_update_input_mode(unispim_engine);
             ibus_unispim_engine_update(unispim_engine);
             return True;
@@ -583,14 +611,16 @@ static void ibus_unispim_engine_property_activate (IBusEngine *engine,
     unispim_api->get_context(&context);
     unispim_api->get_config(&config);
     IBusUnispimEngine *unispim_engine = (IBusUnispimEngine *)engine;
-    if (!strcmp("chinese", prop_name)) {
-        //unispim_api->reset_context();
+    if (!strcmp("cn_qp", prop_name)) {
         unispim_api->switch_chiness_input();
-
+        config.pinyin_mode = PINYIN_QUANPIN;
+    }else if(!strcmp("cn_sp", prop_name)){
+        unispim_api->switch_chiness_input();
+        config.pinyin_mode = PINYIN_SHUANGPIN;
     }else if (!strcmp("en_candidate", prop_name)) {
-        //unispim_api->reset_context();
         unispim_api->switch_english_cand();
-
+    }else if(!strcmp("en", prop_name)){
+        unispim_api->switch_english_input();
     }
     if(!strcmp("hz_output_mode", prop_name)){
         if(config.hz_output_mode == HZ_OUTPUT_SIMPLIFIED){
@@ -598,16 +628,14 @@ static void ibus_unispim_engine_property_activate (IBusEngine *engine,
         }else if(config.hz_output_mode == HZ_OUTPUT_TRADITIONAL){
             config.hz_output_mode = HZ_OUTPUT_SIMPLIFIED;
         }
-        unispim_api->update_config(&config);
     }
     if(!strcmp("symbol_full_or_half", prop_name)){
         config.symbol_type ^= HZ_SYMBOL_HALFSHAPE;
-        unispim_api->update_config(&config);
     }
     if(!strcmp("symbol_cn_or_en", prop_name) && !context.english_state){
         config.symbol_type ^= HZ_SYMBOL_CHINESE;
-        unispim_api->update_config(&config);
     }
+    unispim_api->update_config(&config);
     ibus_unispim_update_input_mode(unispim_engine);
     ibus_unispim_engine_update(unispim_engine);
 }
@@ -620,11 +648,30 @@ static void ibus_unispim_update_input_mode(IBusUnispimEngine *unispim_engine)
     IBusText* label;
     IBusProperty* prop;
     if(context.english_state == ENGLISH_STATE_NONE){
-        prop = ibus_prop_list_get(unispim_engine->props, 1);
-        label = ibus_text_new_from_static_string("中文全拼"TICK);
+        if(config.pinyin_mode == PINYIN_QUANPIN){
+            prop = ibus_prop_list_get(unispim_engine->props, 1);
+            label = ibus_text_new_from_static_string("中文全拼"TICK);
+            ibus_property_set_label(prop, label);
+            ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
+            prop = ibus_prop_list_get(unispim_engine->props, 2);
+            label = ibus_text_new_from_static_string("中文双拼");
+            ibus_property_set_label(prop, label);
+            ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
+        }else{
+            prop = ibus_prop_list_get(unispim_engine->props, 1);
+            label = ibus_text_new_from_static_string("中文全拼");
+            ibus_property_set_label(prop, label);
+            ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
+            prop = ibus_prop_list_get(unispim_engine->props, 2);
+            label = ibus_text_new_from_static_string("中文双拼"TICK);
+            ibus_property_set_label(prop, label);
+            ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
+        }
+        prop = ibus_prop_list_get(unispim_engine->props, 3);
+        label = ibus_text_new_from_static_string("英文输入");
         ibus_property_set_label(prop, label);
         ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
-        prop = ibus_prop_list_get(unispim_engine->props, 2);
+        prop = ibus_prop_list_get(unispim_engine->props, 4);
         label = ibus_text_new_from_static_string("英文单词");
         ibus_property_set_label(prop, label);
         ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
@@ -635,53 +682,65 @@ static void ibus_unispim_update_input_mode(IBusUnispimEngine *unispim_engine)
         ibus_property_set_label(prop, label);
         ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
         prop = ibus_prop_list_get(unispim_engine->props, 2);
+        label = ibus_text_new_from_static_string("中文双拼");
+        ibus_property_set_label(prop, label);
+        ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
+        prop = ibus_prop_list_get(unispim_engine->props, 3);
+        label = ibus_text_new_from_static_string("英文输入");
+        ibus_property_set_label(prop, label);
+        ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
+        prop = ibus_prop_list_get(unispim_engine->props, 4);
         label = ibus_text_new_from_static_string("英文单词"TICK);
         ibus_property_set_label(prop, label);
         ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
     }else if(context.english_state == ENGLISH_STATE_INPUT){
         prop = ibus_prop_list_get(unispim_engine->props, 1);
-        label = ibus_text_new_from_static_string("英文输入"TICK);
+        label = ibus_text_new_from_static_string("中文全拼");
         ibus_property_set_label(prop, label);
         ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
         prop = ibus_prop_list_get(unispim_engine->props, 2);
+        label = ibus_text_new_from_static_string("中文双拼");
+        ibus_property_set_label(prop, label);
+        ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
+        prop = ibus_prop_list_get(unispim_engine->props, 3);
+        label = ibus_text_new_from_static_string("英文输入"TICK);
+        ibus_property_set_label(prop, label);
+        ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
+        prop = ibus_prop_list_get(unispim_engine->props, 4);
         label = ibus_text_new_from_static_string("英文单词");
         ibus_property_set_label(prop, label);
         ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
     }
 
     if(config.hz_output_mode == HZ_OUTPUT_SIMPLIFIED){
-        prop = ibus_prop_list_get(unispim_engine->props, 3);
+        prop = ibus_prop_list_get(unispim_engine->props, 5);
         label = ibus_text_new_from_static_string("简体字 / 繁体字");
         ibus_property_set_label(prop, label);
         ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
     }else if(config.hz_output_mode == HZ_OUTPUT_TRADITIONAL){
-        prop = ibus_prop_list_get(unispim_engine->props, 3);
+        prop = ibus_prop_list_get(unispim_engine->props, 5);
         label = ibus_text_new_from_static_string("繁体字 / 简体字");
         ibus_property_set_label(prop, label);
         ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
     }
     if(!(config.symbol_type & HZ_SYMBOL_HALFSHAPE)){
-        prop = ibus_prop_list_get(unispim_engine->props, 4);
+        prop = ibus_prop_list_get(unispim_engine->props, 6);
         label = ibus_text_new_from_static_string("全角符 / 半角符");
         ibus_property_set_label(prop, label);
         ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
     }else{
-        prop = ibus_prop_list_get(unispim_engine->props, 4);
+        prop = ibus_prop_list_get(unispim_engine->props, 6);
         label = ibus_text_new_from_static_string("半角符 / 全角符");
         ibus_property_set_label(prop, label);
         ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
     }
     if(!(config.symbol_type & HZ_SYMBOL_CHINESE) || context.english_state == ENGLISH_STATE_INPUT){
-        prop = ibus_prop_list_get(unispim_engine->props, 5);
+        prop = ibus_prop_list_get(unispim_engine->props, 7);
         label = ibus_text_new_from_static_string("英文符 / 中文符");
-        ibus_text_append_attribute(label,
-                                   IBUS_ATTR_TYPE_FOREGROUND,
-                                   COLOR_GREEN,
-                                   0, 3);
         ibus_property_set_label(prop, label);
         ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
     }else{
-        prop = ibus_prop_list_get(unispim_engine->props, 5);
+        prop = ibus_prop_list_get(unispim_engine->props, 7);
         label = ibus_text_new_from_static_string("中文符 / 英文符");
         ibus_property_set_label(prop, label);
         ibus_engine_update_property((IBusEngine *)unispim_engine, prop);
