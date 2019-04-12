@@ -408,9 +408,6 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
                                        guint       keycode,
                                        guint       modifiers)
 {
-    g_warning("modifiers: %d", modifiers);
-    g_warning("keyval: %d", keyval);
-
     IBusUnispimEngine *unispim_engine = (IBusUnispimEngine *)engine;
     modifiers &= (IBUS_RELEASE_MASK | IBUS_LOCK_MASK | IBUS_SHIFT_MASK |
                   IBUS_CONTROL_MASK | IBUS_MOD1_MASK | IBUS_SUPER_MASK);
@@ -779,11 +776,6 @@ static void ibus_unispim_engine_page_down (IBusEngine *engine)
     ibus_unispim_engine_update(unispim_engine);
 }
 
-static void show_message(const char* summary, const char* details) {
-    NotifyNotification* notice = notify_notification_new(summary, details, NULL);
-    notify_notification_show(notice, NULL);
-    g_object_unref(notice);
-}
 static void candidate_selected_set_cursor_pos(IBusText* cand_text, int cand_index)
 {
     LunispimContext context;

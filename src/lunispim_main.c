@@ -28,6 +28,11 @@ static void ibus_disconnect_cb(IBusBus *bus, gpointer user_data) {
   ibus_quit();
 }
 
+void show_message(const char* summary, const char* details) {
+    NotifyNotification* notice = notify_notification_new(summary, details, NULL);
+    notify_notification_show(notice, NULL);
+    g_object_unref(notice);
+}
 static void lunispim_with_ibus() {
   ibus_init();
   IBusBus *bus = ibus_bus_new();
@@ -49,10 +54,7 @@ static void lunispim_with_ibus() {
     g_error("error requesting bus name");
     exit(1);
   }
-  if (!notify_init("ibus-lunispim")) {
-    g_error("notify_init failed");
-    exit(1);
-  }
+
   ibus_unispim_load_settings();
 
   ibus_main();
@@ -68,8 +70,17 @@ static void sigterm_cb(int sig) {
 int main(gint argc, gchar** argv) {
     signal(SIGTERM, sigterm_cb);
     signal(SIGINT, sigterm_cb);
+    char* err_info;
+    if (!notify_init("ibus-lunispim")) {
+      g_error("notify_init failed");
+      exit(1);
+    }
     unispim_api = get_unispim_api();
-    unispim_api->initialize();
+    err_info = unispim_api->initialize();
+    if(err_info[0] != 0){
+        show_message("华宇输入法", err_info);
+        exit(1);
+    }
     unispim_api->set_soft_cursor(True);
     lunispim_with_ibus();
     return 0;

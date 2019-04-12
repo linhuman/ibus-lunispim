@@ -15,7 +15,7 @@ if (LIBNOTIFY_FOUND)
   link_directories(${LIBNOTIFY_LIBRARY_DIRS})
 endif(LIBNOTIFY_FOUND)
 
-pkg_check_modules(LUNISPIM REQUIRED lunispim)
+pkg_check_modules(LUNISPIM REQUIRED liblunispim)
 if (LUNISPIM_FOUND)
   include_directories(${LUNISPIM_INCLUDE_DIRS})
   link_directories(${LUNISPIM_LIBRARY_DIRS})

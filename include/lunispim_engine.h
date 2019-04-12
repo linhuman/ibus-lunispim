@@ -1,5 +1,5 @@
-#ifndef __IBUS_RIME_ENGINE_H__
-#define __IBUS_RIME_ENGINE_H__
+#ifndef __IBUS_LUNISPIM_ENGINE_H__
+#define __IBUS_LUNISPIM_ENGINE_H__
 
 #include <ibus.h>
 #include <stdio.h>

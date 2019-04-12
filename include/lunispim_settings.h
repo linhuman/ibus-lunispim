@@ -1,5 +1,5 @@
-#ifndef __IBUS_RIME_SETTINGS_H__
-#define __IBUS_RIME_SETTINGS_H__
+#ifndef __IBUS_LUNISPIM_SETTINGS_H__
+#define __IBUS_LUNISPIM_SETTINGS_H__
 
 #include <ibus.h>
 
