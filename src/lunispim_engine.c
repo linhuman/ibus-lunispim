@@ -10,13 +10,13 @@ extern LunispimApi *unispim_api;
 typedef struct _IBusUnispimEngine IBusUnispimEngine;
 typedef struct _IBusUnispimEngineClass IBusUnispimEngineClass;
 static const char* symbols = "~!@#$%^&*-=()_+{}<>,;.:`'|?><\\\"/ ";
+static const char* commit_symbols = "\"</{}()\\";
 struct _IBusUnispimEngine {
     IBusEngine parent;
     /* members */
     IBusLookupTable* table;
     IBusPropList* props;
 };
-
 struct _IBusUnispimEngineClass {
     IBusEngineClass parent;
 };
@@ -419,7 +419,6 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
     if((modifiers & IBUS_SHIFT_MASK) && !(modifiers & IBUS_RELEASE_MASK)){
         shift_mask_key = 1;
     }
-
     if((keyval == IBUS_KEY_Shift_R || keyval == IBUS_KEY_Shift_L) &&
             (modifiers & IBUS_RELEASE_MASK) &&
             (modifiers &IBUS_SHIFT_MASK)){
@@ -439,9 +438,8 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
             shift_mask_key = 0;
         }
     }
-
     if(modifiers != 0 && modifiers != IBUS_SHIFT_MASK) return False;
-
+//ibus_engine_forward_key_event(engine, IBUS_KEY_Left, 105, 0);
     //i输入模式
     if(context.state == STATE_IINPUT){
         if((keyval >= IBUS_KEY_0 &&
@@ -484,7 +482,8 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
         }
     }
     //空格按下
-    if(keyval == IBUS_KEY_space &&
+    if((keyval == IBUS_KEY_space ||
+        (strchr(commit_symbols, keyval) && context.compose_length)) &&
             context.input_length &&
             context.english_state != ENGLISH_STATE_INPUT &&
             context.state != STATE_VINPUT
@@ -501,7 +500,12 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
         unispim_api->select_candidate(index);
         if(unispim_api->has_result()){
             gchar text[MAX_RESULT_LENGTH + 1];
+            gchar symbol[10] = {0};
             unispim_api->get_result(text, MAX_RESULT_LENGTH + 1);
+            if(strchr(commit_symbols, keyval)){
+                unispim_api->get_symbol((TCHAR)keyval, symbol, 10);
+                strcat(text, symbol);
+            }
             ibus_engine_commit_text((IBusEngine *)unispim_engine, ibus_text_new_from_string(text));
             unispim_api->reset_context();
         }
@@ -563,7 +567,7 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
     if(((keyval >= IBUS_KEY_a && keyval <= IBUS_KEY_z) ||
         (keyval >= IBUS_KEY_A && keyval <= IBUS_KEY_Z) ||
         (config.pinyin_mode == PINYIN_SHUANGPIN && keyval == IBUS_KEY_semicolon) ||
-        keyval == IBUS_KEY_apostrophe) &&
+        (keyval == IBUS_KEY_apostrophe && context.compose_length)) &&
             context.english_state != ENGLISH_STATE_INPUT &&
             (context.state == STATE_EDIT || context.state == STATE_BINPUT)
             ){
