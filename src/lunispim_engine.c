@@ -21,6 +21,7 @@ struct _IBusUnispimEngineClass {
     IBusEngineClass parent;
 };
 static guint shift_mask_key = 0;
+
 /* functions prototype */
 static void ibus_unispim_engine_class_init (IBusUnispimEngineClass *klass);
 static void ibus_unispim_engine_init (IBusUnispimEngine *unispim_engine);
@@ -439,7 +440,13 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
         }
     }
     if(modifiers != 0 && modifiers != IBUS_SHIFT_MASK) return False;
-//ibus_engine_forward_key_event(engine, IBUS_KEY_Left, 105, 0);
+
+    //esc
+    if(keyval == IBUS_KEY_Escape){
+        unispim_api->reset_context();
+        ibus_unispim_engine_update(unispim_engine);
+        return True;
+    }
     //i输入模式
     if(context.state == STATE_IINPUT){
         if((keyval >= IBUS_KEY_0 &&
