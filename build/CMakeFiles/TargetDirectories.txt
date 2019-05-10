@@ -1,7 +1,0 @@
-/home/wen/github/ibus-lunispim/build/CMakeFiles/install.dir
-/home/wen/github/ibus-lunispim/build/CMakeFiles/list_install_components.dir
-/home/wen/github/ibus-lunispim/build/CMakeFiles/rebuild_cache.dir
-/home/wen/github/ibus-lunispim/build/CMakeFiles/ibus-engine-lunispim.dir
-/home/wen/github/ibus-lunispim/build/CMakeFiles/edit_cache.dir
-/home/wen/github/ibus-lunispim/build/CMakeFiles/install/strip.dir
-/home/wen/github/ibus-lunispim/build/CMakeFiles/install/local.dir
