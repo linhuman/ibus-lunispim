@@ -1,0 +1,2 @@
+/usr/bin/ibus-lunispim/ibus-engine-lunispim
+/usr/share/ibus/component/lunispim.xml

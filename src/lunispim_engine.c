@@ -443,9 +443,13 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
 
     //esc
     if(keyval == IBUS_KEY_Escape){
-        unispim_api->reset_context();
-        ibus_unispim_engine_update(unispim_engine);
-        return True;
+        if(context.compose_length){
+            unispim_api->reset_context();
+            ibus_unispim_engine_update(unispim_engine);
+            return True;
+        }else{
+            return False;
+        }
     }
     //i输入模式
     if(context.state == STATE_IINPUT){
