@@ -476,7 +476,7 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
         }
     }
     //回车
-    if(keyval == IBUS_KEY_Return && context.input_length && !context.english_state){
+    if((keyval == IBUS_KEY_Return || keyval == IBUS_KEY_KP_Enter) && context.input_length && !context.english_state){
         if(context.input_length){
             char return_text[MAX_INPUT_LENGTH + 0x10];
             unispim_api->get_return_string(return_text, MAX_INPUT_LENGTH + 0x10);
