@@ -412,7 +412,7 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
     IBusUnispimEngine *unispim_engine = (IBusUnispimEngine *)engine;
     modifiers &= (IBUS_RELEASE_MASK | IBUS_LOCK_MASK | IBUS_SHIFT_MASK |
                   IBUS_CONTROL_MASK | IBUS_MOD1_MASK | IBUS_SUPER_MASK);
-
+	
     LunispimContext context;
     unispim_api->get_context(&context);
     LunispimConfig config;
@@ -431,6 +431,7 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
                 return True;
             }else{
                 unispim_api->switch_english_input();
+				unispim_api->reset_context();
                 ibus_unispim_update_input_mode(unispim_engine);
                 ibus_unispim_engine_update(unispim_engine);
                 return False;
@@ -440,7 +441,6 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
         }
     }
     if(modifiers != 0 && modifiers != IBUS_SHIFT_MASK) return False;
-
     //esc
     if(keyval == IBUS_KEY_Escape){
         if(context.compose_length){
@@ -456,7 +456,7 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
         if((keyval >= IBUS_KEY_0 &&
             keyval <= IBUS_KEY_9 &&
             !context.english_state) ||
-                strchr("./", keyval)){
+                strchr(".", keyval)){
             unispim_api->search((TCHAR)keyval);
             ibus_unispim_engine_update(unispim_engine);
             return True;
@@ -480,11 +480,7 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
         if(context.input_length){
             char return_text[MAX_INPUT_LENGTH + 0x10];
             unispim_api->get_return_string(return_text, MAX_INPUT_LENGTH + 0x10);
-            if(context.state == STATE_VINPUT){
-                ibus_engine_commit_text((IBusEngine *)unispim_engine, ibus_text_new_from_string(return_text));
-            }else{
-                ibus_engine_commit_text((IBusEngine *)unispim_engine, ibus_text_new_from_string(return_text));
-            }
+            ibus_engine_commit_text((IBusEngine *)unispim_engine, ibus_text_new_from_string(return_text));
             unispim_api->reset_context();
             ibus_unispim_engine_update(unispim_engine);
             return True;
@@ -500,13 +496,19 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
             context.state != STATE_VINPUT
             ){
         if(context.compose_length && !context.candidate_count){
-            ibus_engine_commit_text((IBusEngine *)unispim_engine, ibus_text_new_from_string(context.compose_string));
+			gchar text[MAX_RESULT_LENGTH + 1];
+			unispim_api->get_return_string(text, MAX_INPUT_LENGTH + 0x10);
+			if(strchr(commit_symbols, keyval)){
+				gchar symbol[10] = {0};
+				unispim_api->get_symbol((TCHAR)keyval, symbol, 10);
+                strcat(text, symbol);
+			}
+			ibus_engine_commit_text((IBusEngine *)unispim_engine, ibus_text_new_from_string(text));
             unispim_api->reset_context();
             ibus_unispim_engine_update(unispim_engine);
             return True;
         }
         guint index;
-        //index = ibus_lookup_table_get_cursor_pos(unispim_engine->table);
         index = context.candidate_selected_index;
         unispim_api->select_candidate(index);
         if(unispim_api->has_result()){
@@ -525,7 +527,7 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
     }
     //数字键选择候选，i状态字母选择候选
     if(((keyval >= IBUS_KEY_1 && keyval <= IBUS_KEY_9) ||
-        (keyval >= IBUS_KEY_a && keyval <= IBUS_KEY_h && context.state == STATE_IINPUT)) &&
+        (keyval >= IBUS_KEY_a && keyval <= IBUS_KEY_h && context.state == STATE_IINPUT && context.candidate_count)) &&
             context.english_state != ENGLISH_STATE_INPUT &&
             context.compose_length){
         guint index = 0;
