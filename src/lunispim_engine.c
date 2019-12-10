@@ -256,6 +256,7 @@ ibus_unispim_engine_reset (IBusEngine *engine)
 static void
 ibus_unispim_engine_enable (IBusEngine *engine)
 {
+	unispim_api->switch_chiness_input();
 }
 
 static void
