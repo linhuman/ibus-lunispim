@@ -577,6 +577,14 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
         ibus_unispim_engine_update(unispim_engine);
         return True;
     }
+	if(IBUS_KEY_Page_Up == keyval){
+		unispim_api->prev_candidate_page();
+		ibus_unispim_engine_update(unispim_engine);
+	}
+	if(IBUS_KEY_Page_Down == keyval){
+		unispim_api->next_candidate_page();
+		ibus_unispim_engine_update(unispim_engine);
+	}
     //拼音输入
     if(((keyval >= IBUS_KEY_a && keyval <= IBUS_KEY_z) ||
         (keyval >= IBUS_KEY_A && keyval <= IBUS_KEY_Z) ||
@@ -783,7 +791,6 @@ static void ibus_unispim_engine_page_up (IBusEngine *engine)
 {
     IBusUnispimEngine *unispim_engine = (IBusUnispimEngine *)engine;
     unispim_api->prev_candidate_page();
-    //rime_api->process_key(rime_engine->session_id, IBUS_KEY_Page_Up, 0);
     ibus_unispim_engine_update(unispim_engine);
 }
 
