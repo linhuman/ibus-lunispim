@@ -9,3 +9,6 @@ make install
 make DESTDIR=/dir
 make install
 
+# 图标使用了ibus-pinyin项目的图标文件
+
+

@@ -22,10 +22,12 @@ if (LUNISPIM_FOUND)
 endif(LUNISPIM_FOUND)
 
 set(PREFIX_DIR "${CMAKE_INSTALL_PREFIX}")
+set(DATA_INSTALL_DIR "${PREFIX_DIR}/share")
+set(LOGO_DIR "${DATA_INSTALL_DIR}")
 set(IBUS_COMPONENT_DIR "${PREFIX_DIR}/share/ibus/component")
 set(BIN_INSTALL_DIR "${PREFIX_DIR}/bin/ibus-lunispim")
-set(SHARE_DIR "${PREFIX_DIR}/share")
 set(IBUS_LUNISPIM_VERSION 0.1)
+add_definitions(-DDATA_INSTALL_DIR="${DATA_INSTALL_DIR}")
 configure_file(
 	${PROJECT_SOURCE_DIR}/lunispim.xml.in
 	${PROJECT_BINARY_DIR}/lunispim.xml
@@ -36,7 +38,9 @@ target_link_libraries(ibus-engine-lunispim ${IBus_LIBRARIES} ${LIBNOTIFY_LIBRARI
 if(DEFINED DESTDIR)
 	install(TARGETS ibus-engine-lunispim RUNTIME DESTINATION ${DESTDIR}${BIN_INSTALL_DIR})
 	install(FILES ${PROJECT_BINARY_DIR}/lunispim.xml DESTINATION ${DESTDIR}${IBUS_COMPONENT_DIR})
+	install(DIRECTORY ${PROJECT_SOURCE_DIR}/data/ibus-lunispim DESTINATION ${DESTDIR}${DATA_INSTALL_DIR})
 else()
 	install(TARGETS ibus-engine-lunispim RUNTIME DESTINATION ${BIN_INSTALL_DIR})
 	install(FILES ${PROJECT_BINARY_DIR}/lunispim.xml DESTINATION ${IBUS_COMPONENT_DIR})
+	install(DIRECTORY ${PROJECT_SOURCE_DIR}/data/ibus-lunispim DESTINATION ${DATA_INSTALL_DIR})
 endif()

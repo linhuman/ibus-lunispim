@@ -15,7 +15,7 @@
 			<language>zh</language>
 			<license>GPL</license>
 			<author>linhuman &lt;linxe123@126.com&gt;</author>
-			<icon>@SHARE_DIR@/lunispim/icons/logo.png</icon>
+			<icon>@LOGO_DIR@/lunispim/icons/logo.png</icon>
 			<layout>default</layout>
 			<longname>Lunispim</longname>
 			<description>Lunispim Input Method Engine</description>

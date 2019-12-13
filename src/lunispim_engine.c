@@ -10,7 +10,7 @@ extern LunispimApi *unispim_api;
 typedef struct _IBusUnispimEngine IBusUnispimEngine;
 typedef struct _IBusUnispimEngineClass IBusUnispimEngineClass;
 static const char* symbols = "~!@#$%^&*-=()_+{}<>,;.:`'|?><\\\"/ ";
-static const char* commit_symbols = "\"</{}()\\";
+static const char* commit_symbols = "\"</{}()\\[].=";
 struct _IBusUnispimEngine {
     IBusEngine parent;
     /* members */
@@ -115,7 +115,7 @@ ibus_unispim_engine_init (IBusUnispimEngine *unispim_engine)
     prop = ibus_property_new("lunispim",
                              PROP_TYPE_NORMAL,
                              label,
-                             "",
+                             DATA_INSTALL_DIR"/ibus-lunispim/icons/chinese.svg",
                              tips,
                              TRUE,
                              TRUE,
@@ -128,7 +128,7 @@ ibus_unispim_engine_init (IBusUnispimEngine *unispim_engine)
     prop = ibus_property_new("cn_qp",
                              PROP_TYPE_NORMAL,
                              label,
-                             "",
+                             DATA_INSTALL_DIR"/ibus-lunispim/icons/chinese.svg",
                              tips,
                              TRUE,
                              TRUE,
@@ -141,7 +141,7 @@ ibus_unispim_engine_init (IBusUnispimEngine *unispim_engine)
     prop = ibus_property_new("cn_sp",
                              PROP_TYPE_NORMAL,
                              label,
-                             "",
+                             DATA_INSTALL_DIR"/ibus-lunispim/icons/chinese.svg",
                              tips,
                              TRUE,
                              TRUE,
@@ -154,7 +154,7 @@ ibus_unispim_engine_init (IBusUnispimEngine *unispim_engine)
     prop = ibus_property_new("en",
                              PROP_TYPE_NORMAL,
                              label,
-                             "",
+                             DATA_INSTALL_DIR"/ibus-lunispim/icons/english.svg",
                              tips,
                              TRUE,
                              TRUE,
@@ -167,20 +167,20 @@ ibus_unispim_engine_init (IBusUnispimEngine *unispim_engine)
     prop = ibus_property_new("en_candidate",
                              PROP_TYPE_NORMAL,
                              label,
-                             "",
+                             DATA_INSTALL_DIR"/ibus-lunispim/icons/english.svg",
                              tips,
                              TRUE,
                              TRUE,
                              PROP_STATE_UNCHECKED,
                              NULL);
     ibus_prop_list_append(unispim_engine->props, prop);
-
+	
     label = ibus_text_new_from_static_string("简体字 / 繁体字");
     tips = ibus_text_new_from_static_string(_("hz_output_mode"));
     prop = ibus_property_new("hz_output_mode",
                              PROP_TYPE_NORMAL,
                              label,
-                             "",
+                             DATA_INSTALL_DIR"/ibus-lunispim/icons/simp-chinese.svg",
                              tips,
                              TRUE,
                              TRUE,
@@ -193,7 +193,7 @@ ibus_unispim_engine_init (IBusUnispimEngine *unispim_engine)
     prop = ibus_property_new("symbol_full_or_half",
                              PROP_TYPE_NORMAL,
                              label,
-                             "",
+                             DATA_INSTALL_DIR"/ibus-lunispim/icons/full-punct.svg",
                              tips,
                              TRUE,
                              TRUE,
@@ -206,7 +206,7 @@ ibus_unispim_engine_init (IBusUnispimEngine *unispim_engine)
     prop = ibus_property_new("symbol_cn_or_en",
                              PROP_TYPE_NORMAL,
                              label,
-                             "",
+                             DATA_INSTALL_DIR"/ibus-lunispim/icons/half.svg.svg",
                              tips,
                              TRUE,
                              TRUE,
@@ -421,6 +421,7 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
     if((modifiers & IBUS_SHIFT_MASK) && !(modifiers & IBUS_RELEASE_MASK)){
         shift_mask_key = 1;
     }
+
     if((keyval == IBUS_KEY_Shift_R || keyval == IBUS_KEY_Shift_L) &&
             (modifiers & IBUS_RELEASE_MASK) &&
             (modifiers &IBUS_SHIFT_MASK)){
@@ -577,13 +578,15 @@ ibus_unispim_engine_process_key_event (IBusEngine *engine,
         ibus_unispim_engine_update(unispim_engine);
         return True;
     }
-	if(IBUS_KEY_Page_Up == keyval){
+	if(IBUS_KEY_Page_Up == keyval && context.compose_length){
 		unispim_api->prev_candidate_page();
 		ibus_unispim_engine_update(unispim_engine);
+		return True;
 	}
-	if(IBUS_KEY_Page_Down == keyval){
+	if(IBUS_KEY_Page_Down == keyval && context.compose_length){
 		unispim_api->next_candidate_page();
 		ibus_unispim_engine_update(unispim_engine);
+		return True;
 	}
     //拼音输入
     if(((keyval >= IBUS_KEY_a && keyval <= IBUS_KEY_z) ||

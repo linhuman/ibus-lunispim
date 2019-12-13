@@ -1,4 +1,3 @@
-// ibus-rime program entry
 
 #include "lunispim_config.h"
 #include <stdlib.h>
@@ -13,13 +12,6 @@
 #include "lunispim_engine.h"
 #include "lunispim_settings.h"
 #include <lunispim/lunispim_api.h>
-
-// TODO:
-#define _(x) (x)
-
-#define DISTRIBUTION_NAME _("unispim")
-#define DISTRIBUTION_CODE_NAME "ibus-unispim"
-#define DISTRIBUTION_VERSION RIME_VERSION
 
 LunispimApi *unispim_api = NULL;
 
