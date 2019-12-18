@@ -17,10 +17,11 @@
 			<author>linhuman &lt;linxe123@126.com&gt;</author>
 			<icon>@LOGO_DIR@/lunispim/icons/logo.png</icon>
 			<layout>default</layout>
+			<icon_prop_key>lunispim</icon_prop_key>
 			<longname>Lunispim</longname>
 			<description>Lunispim Input Method Engine</description>
 			<rank>0</rank>
-			<symbol>&#x37A2;</symbol>
+			<symbol>&#x534E;</symbol>
 		</engine>
 	</engines>
 </component>
