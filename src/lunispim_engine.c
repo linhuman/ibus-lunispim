@@ -152,7 +152,6 @@ ibus_unispim_engine_init(IBusUnispimEngine *unispim_engine)
 			TRUE,
 			PROP_STATE_UNCHECKED,
 			NULL);
-	ibus_property_set_symbol(prop, ibus_text_new_from_static_string("中文全拼"));
 	ibus_prop_list_append(unispim_engine->props, prop);
 
 	label = ibus_text_new_from_static_string("英文输入");
@@ -220,8 +219,6 @@ ibus_unispim_engine_init(IBusUnispimEngine *unispim_engine)
 			NULL);
 	ibus_prop_list_append(unispim_engine->props, prop);
 	
-	ibus_unispim_update_input_mode(unispim_engine);
-
 }
 
 static void
@@ -246,6 +243,7 @@ ibus_unispim_engine_focus_in(IBusEngine *engine)
 {
 	IBusUnispimEngine *unispim_engine = (IBusUnispimEngine *) engine;
 	ibus_engine_register_properties(engine, unispim_engine->props);
+	ibus_unispim_update_input_mode(unispim_engine);
 	ibus_unispim_engine_update(unispim_engine);
 
 }
@@ -264,7 +262,7 @@ ibus_unispim_engine_reset(IBusEngine *engine)
 static void
 ibus_unispim_engine_enable(IBusEngine *engine)
 {
-	unispim_api->switch_chiness_input();
+
 }
 
 static void
