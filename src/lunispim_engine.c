@@ -115,7 +115,7 @@ ibus_unispim_engine_init(IBusUnispimEngine *unispim_engine)
 	IBusText* label;
 	IBusText* tips;
 
-	label = ibus_text_new_from_static_string("华宇拼音输入法");
+	label = ibus_text_new_from_static_string("华宇输入法");
 	tips = ibus_text_new_from_static_string(_("Lunispim"));
 	prop = ibus_property_new("lunispim",
 			PROP_TYPE_NORMAL,
