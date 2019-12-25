@@ -691,9 +691,24 @@ static void ibus_unispim_update_input_mode(IBusUnispimEngine *unispim_engine)
 		ibus_property_set_label(prop, label);
 		ibus_engine_update_property((IBusEngine *) unispim_engine, prop);
 	}
+	if (config.hz_output_mode == HZ_OUTPUT_SIMPLIFIED) {
+		prop = ibus_prop_list_get(unispim_engine->props, 5);
+		label = ibus_text_new_from_static_string("简体字 / 繁体字");
+		ibus_property_set_label(prop, label);
+		ibus_engine_update_property((IBusEngine *) unispim_engine, prop);
+	} else if (config.hz_output_mode == HZ_OUTPUT_TRADITIONAL) {
+		prop = ibus_prop_list_get(unispim_engine->props, 5);
+		label = ibus_text_new_from_static_string("繁体字 / 简体字");
+		ibus_property_set_label(prop, label);
+		ibus_engine_update_property((IBusEngine *) unispim_engine, prop);
+	}
 	if (context.english_state == ENGLISH_STATE_NONE) {
 		if (config.pinyin_mode == PINYIN_QUANPIN) {
-			ibus_property_set_symbol(title_prop, ibus_text_new_from_printf("%s%s", "中", period));
+			if(config.hz_output_mode == HZ_OUTPUT_SIMPLIFIED){
+				ibus_property_set_symbol(title_prop, ibus_text_new_from_printf("%s%s", "华", period));
+			}else if (config.hz_output_mode == HZ_OUTPUT_TRADITIONAL) {
+				ibus_property_set_symbol(title_prop, ibus_text_new_from_printf("%s%s", "華", period));
+			}
 			ibus_engine_update_property((IBusEngine *) unispim_engine, title_prop);
 			prop = ibus_prop_list_get(unispim_engine->props, 1);
 			label = ibus_text_new_from_static_string("中文全拼"TICK);
@@ -704,7 +719,11 @@ static void ibus_unispim_update_input_mode(IBusUnispimEngine *unispim_engine)
 			ibus_property_set_label(prop, label);
 			ibus_engine_update_property((IBusEngine *) unispim_engine, prop);
 		} else {
-			ibus_property_set_symbol(title_prop, ibus_text_new_from_printf("%s%s", "双", period));
+			if(config.hz_output_mode == HZ_OUTPUT_SIMPLIFIED){
+				ibus_property_set_symbol(title_prop, ibus_text_new_from_printf("%s%s", "双", period));
+			}else if (config.hz_output_mode == HZ_OUTPUT_TRADITIONAL) {
+				ibus_property_set_symbol(title_prop, ibus_text_new_from_printf("%s%s", "雙", period));
+			}
 			ibus_engine_update_property((IBusEngine *) unispim_engine, title_prop);
 			prop = ibus_prop_list_get(unispim_engine->props, 1);
 			label = ibus_text_new_from_static_string("中文全拼");
@@ -760,18 +779,6 @@ static void ibus_unispim_update_input_mode(IBusUnispimEngine *unispim_engine)
 		ibus_engine_update_property((IBusEngine *) unispim_engine, prop);
 		prop = ibus_prop_list_get(unispim_engine->props, 4);
 		label = ibus_text_new_from_static_string("英文单词");
-		ibus_property_set_label(prop, label);
-		ibus_engine_update_property((IBusEngine *) unispim_engine, prop);
-	}
-
-	if (config.hz_output_mode == HZ_OUTPUT_SIMPLIFIED) {
-		prop = ibus_prop_list_get(unispim_engine->props, 5);
-		label = ibus_text_new_from_static_string("简体字 / 繁体字");
-		ibus_property_set_label(prop, label);
-		ibus_engine_update_property((IBusEngine *) unispim_engine, prop);
-	} else if (config.hz_output_mode == HZ_OUTPUT_TRADITIONAL) {
-		prop = ibus_prop_list_get(unispim_engine->props, 5);
-		label = ibus_text_new_from_static_string("繁体字 / 简体字");
 		ibus_property_set_label(prop, label);
 		ibus_engine_update_property((IBusEngine *) unispim_engine, prop);
 	}
