@@ -25,6 +25,7 @@ struct _IBusUnispimEngineClass
 	IBusEngineClass parent;
 };
 static guint shift_mask_key = 0;
+static guint control_mask_key = 0;
 
 /* functions prototype */
 static void ibus_unispim_engine_class_init(IBusUnispimEngineClass *klass);
@@ -218,7 +219,7 @@ ibus_unispim_engine_init(IBusUnispimEngine *unispim_engine)
 			PROP_STATE_UNCHECKED,
 			NULL);
 	ibus_prop_list_append(unispim_engine->props, prop);
-	
+
 }
 
 static void
@@ -423,6 +424,9 @@ ibus_unispim_engine_process_key_event(IBusEngine *engine,
 	if ((modifiers & IBUS_SHIFT_MASK) && !(modifiers & IBUS_RELEASE_MASK)) {
 		shift_mask_key = 1;
 	}
+	if ((modifiers & IBUS_CONTROL_MASK) && !(modifiers & IBUS_RELEASE_MASK)) {
+		control_mask_key = 1;
+	}
 
 	if ((keyval == IBUS_KEY_Shift_R || keyval == IBUS_KEY_Shift_L) &&
 			(modifiers & IBUS_RELEASE_MASK) &&
@@ -442,6 +446,25 @@ ibus_unispim_engine_process_key_event(IBusEngine *engine,
 			}
 		} else {
 			shift_mask_key = 0;
+		}
+	}
+
+	if ((IBUS_KEY_Control_L == keyval || IBUS_KEY_Control_R == keyval) &&
+			(modifiers & IBUS_CONTROL_MASK) &&
+			(modifiers & IBUS_RELEASE_MASK) &&
+			ENGLISH_STATE_NONE == context.english_state) {
+		if (!control_mask_key) {
+			if (config.hz_output_mode == HZ_OUTPUT_SIMPLIFIED) {
+				config.hz_output_mode = HZ_OUTPUT_TRADITIONAL;
+			} else if (config.hz_output_mode == HZ_OUTPUT_TRADITIONAL) {
+				config.hz_output_mode = HZ_OUTPUT_SIMPLIFIED;
+			}
+			unispim_api->update_config(&config);
+			ibus_unispim_update_input_mode(unispim_engine);
+			ibus_unispim_engine_update(unispim_engine);
+			return True;
+		} else {
+			control_mask_key = 0;
 		}
 	}
 	if (modifiers != 0 && modifiers != IBUS_SHIFT_MASK) return False;
@@ -704,10 +727,10 @@ static void ibus_unispim_update_input_mode(IBusUnispimEngine *unispim_engine)
 	}
 	if (context.english_state == ENGLISH_STATE_NONE) {
 		if (config.pinyin_mode == PINYIN_QUANPIN) {
-			if(config.hz_output_mode == HZ_OUTPUT_SIMPLIFIED){
-				ibus_property_set_symbol(title_prop, ibus_text_new_from_printf("%s%s", "华", period));
-			}else if (config.hz_output_mode == HZ_OUTPUT_TRADITIONAL) {
-				ibus_property_set_symbol(title_prop, ibus_text_new_from_printf("%s%s", "華", period));
+			if (config.hz_output_mode == HZ_OUTPUT_SIMPLIFIED) {
+				ibus_property_set_symbol(title_prop, ibus_text_new_from_printf("%s%s", "汉", period));
+			} else if (config.hz_output_mode == HZ_OUTPUT_TRADITIONAL) {
+				ibus_property_set_symbol(title_prop, ibus_text_new_from_printf("%s%s", "漢", period));
 			}
 			ibus_engine_update_property((IBusEngine *) unispim_engine, title_prop);
 			prop = ibus_prop_list_get(unispim_engine->props, 1);
@@ -719,9 +742,9 @@ static void ibus_unispim_update_input_mode(IBusUnispimEngine *unispim_engine)
 			ibus_property_set_label(prop, label);
 			ibus_engine_update_property((IBusEngine *) unispim_engine, prop);
 		} else {
-			if(config.hz_output_mode == HZ_OUTPUT_SIMPLIFIED){
+			if (config.hz_output_mode == HZ_OUTPUT_SIMPLIFIED) {
 				ibus_property_set_symbol(title_prop, ibus_text_new_from_printf("%s%s", "双", period));
-			}else if (config.hz_output_mode == HZ_OUTPUT_TRADITIONAL) {
+			} else if (config.hz_output_mode == HZ_OUTPUT_TRADITIONAL) {
 				ibus_property_set_symbol(title_prop, ibus_text_new_from_printf("%s%s", "雙", period));
 			}
 			ibus_engine_update_property((IBusEngine *) unispim_engine, title_prop);
