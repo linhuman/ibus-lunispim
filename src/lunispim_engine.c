@@ -728,7 +728,7 @@ static void ibus_unispim_update_input_mode(IBusUnispimEngine *unispim_engine)
 	if (context.english_state == ENGLISH_STATE_NONE) {
 		if (config.pinyin_mode == PINYIN_QUANPIN) {
 			if (config.hz_output_mode == HZ_OUTPUT_SIMPLIFIED) {
-				ibus_property_set_symbol(title_prop, ibus_text_new_from_printf("%s%s", "汉", period));
+				ibus_property_set_symbol(title_prop, ibus_text_new_from_printf("%s%s", "中", period));
 			} else if (config.hz_output_mode == HZ_OUTPUT_TRADITIONAL) {
 				ibus_property_set_symbol(title_prop, ibus_text_new_from_printf("%s%s", "漢", period));
 			}
