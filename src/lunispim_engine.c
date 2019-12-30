@@ -424,10 +424,11 @@ ibus_unispim_engine_process_key_event(IBusEngine *engine,
 	if ((modifiers & IBUS_SHIFT_MASK) && !(modifiers & IBUS_RELEASE_MASK)) {
 		shift_mask_key = 1;
 	}
+	/*
 	if ((modifiers & IBUS_CONTROL_MASK) && !(modifiers & IBUS_RELEASE_MASK)) {
 		control_mask_key = 1;
 	}
-
+	 */
 	if ((keyval == IBUS_KEY_Shift_R || keyval == IBUS_KEY_Shift_L) &&
 			(modifiers & IBUS_RELEASE_MASK) &&
 			(modifiers & IBUS_SHIFT_MASK)) {
@@ -448,7 +449,7 @@ ibus_unispim_engine_process_key_event(IBusEngine *engine,
 			shift_mask_key = 0;
 		}
 	}
-
+/*
 	if ((IBUS_KEY_Control_L == keyval || IBUS_KEY_Control_R == keyval) &&
 			(modifiers & IBUS_CONTROL_MASK) &&
 			(modifiers & IBUS_RELEASE_MASK) &&
@@ -467,6 +468,7 @@ ibus_unispim_engine_process_key_event(IBusEngine *engine,
 			control_mask_key = 0;
 		}
 	}
+ */
 	if (modifiers != 0 && modifiers != IBUS_SHIFT_MASK) return False;
 	//esc
 	if (keyval == IBUS_KEY_Escape) {
