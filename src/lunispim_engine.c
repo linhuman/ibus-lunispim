@@ -786,7 +786,7 @@ static void ibus_unispim_update_input_mode(IBusUnispimEngine *unispim_engine)
 		ibus_property_set_label(prop, label);
 		ibus_engine_update_property((IBusEngine *) unispim_engine, prop);
 	} else if (context.english_state == ENGLISH_STATE_INPUT) {
-		ibus_property_set_symbol(title_prop, ibus_text_new_from_static_string("en"));
+		ibus_property_set_symbol(title_prop, ibus_text_new_from_static_string("En"));
 		ibus_engine_update_property((IBusEngine *) unispim_engine, title_prop);
 		prop = ibus_prop_list_get(unispim_engine->props, 1);
 		label = ibus_text_new_from_static_string("中文全拼");
