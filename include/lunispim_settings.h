@@ -26,7 +26,7 @@ struct IBusUnispimSettings {
   struct ColorSchemeDefinition* color_scheme;
 };
 
-struct IBusUnispimSettings g_ibus_unispim_settings;
+extern struct IBusUnispimSettings g_ibus_unispim_settings;
 
 void
 ibus_unispim_load_settings();
